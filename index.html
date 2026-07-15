@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>审批记录全场景参考页</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--pr:#2563EB;--pr50:#EFF6FF;--pr100:#DBEAFE;--pr700:#1D4ED8;
+--em:#10B981;--em50:#ECFDF5;--em100:#D1FAE5;--em700:#047857;
+--ac:#F59E0B;--ac50:#FFFBEB;--ac100:#FDE68A;
+--ro:#F43F5E;--ro50:#FFF1F2;--ro100:#FFE4E6;
+--vi:#8B5CF6;--vi50:#F5F3FF;
+--cy:#06B6D4;--cy50:#ECFEFF;
+--or:#F97316;--or50:rgba(249,115,22,.1);
+--c9:#0F172A;--c7:#334155;--c5:#64748B;--c4:#94A3B8;--c3:#CBD5E1;--c2:#E2E8F0;--c1:#F1F5F8;
+--sf:#FFF;--bg:#F0F4F8;--s2:#F7F9FC;--s3:#EEF2F7;--dv:#F1F5F9;--bd:rgba(15,23,42,.06);
+--pr200:#BFDBFE;--pr400:#60A5FA;--pr900:#1E40AF;
+--candidate-new:#8B5CF6;--candidate-screening:#F59E0B;--candidate-interview:#3B82F6;
+--candidate-offer:#10B981;--candidate-hired:#22C55E;--candidate-rejected:#EF4444;
+--perf-exceed:#10B981;--perf-meet:#3B82F6;--perf-improve:#F59E0B;--perf-fail:#EF4444;
+--chart-1:#6366F1;--chart-2:#22C55E;--chart-3:#F59E0B;--chart-4:#EF4444;--chart-5:#8B5CF6;--chart-6:#06B6D4;
+--sx:0 1px 3px rgba(0,0,0,.05);--sm:0 2px 8px rgba(0,0,0,.06);--md:0 4px 16px rgba(0,0,0,.08);
+--bl:0 4px 14px rgba(37,99,235,.25);
+--f:'Inter','Noto Sans SC',system-ui,sans-serif;--m:'JetBrains Mono',monospace;
+--r1:10px;--r2:14px;--r3:18px;--r4:22px;
+--r5:4px;--r6:5px;--r7:6px;--r8:7px;--r9:8px;--r10:9px;--r11:11px;--r12:13px;--r13:20px;
+--ease-out:cubic-bezier(0,0,0.2,1);--ease-in-out:cubic-bezier(0.4,0,0.2,1);--spring:cubic-bezier(0.34,1.56,0.64,1);
+}
+
+/* ── Approval Record Timeline (审批记录) ── */
+.ap-record-tl{padding:4px 0}
+.ap-rec-item{display:flex;position:relative;padding-bottom:14px}
+.ap-rec-item:last-child,.ap-rec-item-last{padding-bottom:0}
+.ap-rec-line{display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:24px}
+.ap-rec-ico{width:20px;height:20px;flex-shrink:0}
+.ap-rec-ico-start{color:#C0C8D4}
+.ap-rec-ico-done{color:#52C41A}
+.ap-rec-ico-pending{color:#FAAD14}
+.ap-rec-bar{width:2px;flex:1;min-height:14px;background:#E8ECF0;margin:4px 0}
+.ap-rec-item:last-child .ap-rec-bar,.ap-rec-item-last .ap-rec-bar{display:none}
+.ap-rec-body{flex:1;min-width:0;padding-top:1px}
+.ap-rec-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.ap-rec-role{font-size:13px;font-weight:600;color:var(--c9);line-height:1.3;flex-shrink:0}
+.ap-rec-name{font-size:13px;color:var(--c9);font-weight:500;line-height:1.3}
+.ap-rec-sub{font-size:11px;color:var(--c5);font-family:var(--m);flex-shrink:0}
+.ap-rec-time{font-size:11px;color:var(--c4);font-family:var(--m);margin-left:auto;flex-shrink:0;white-space:nowrap}
+.ap-rec-tag{display:inline-block;font-size:10px;color:#389E0D;background:#F6FFED;border:1px solid #D9F7BE;border-radius:3px;padding:1px 5px;line-height:1.6;margin:3px 0 0 30px}
+.ap-rec-note{font-size:11px;color:var(--c5);background:var(--s2);border-radius:6px;padding:5px 9px;line-height:1.5;border:1px solid var(--dv);margin:3px 0 0 30px}
+
+/* ── Transfer Approval Detail: compact card comparison ── */
+#dt-ap-transfer .dt-body{background:#F3F6FA;padding:12px 16px 132px!important}
+#dt-ap-transfer .tr-ap-stamp{width:auto;height:auto;min-width:54px;top:15px;right:16px;border:1.5px solid currentColor;border-radius:6px;padding:6px 8px;background:rgba(255,255,255,.86);color:#2F7DEB;font-size:11px;font-weight:800;line-height:1;text-align:center;transform:rotate(-5deg);opacity:1;letter-spacing:0}
+#dt-ap-transfer .tr-ap-tabs{position:sticky;top:0;z-index:22;display:flex;gap:8px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;background:rgba(243,246,250,.96);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:0;border-radius:0;padding:8px 0 9px;margin:0 0 10px;box-shadow:0 1px 0 rgba(226,232,240,.72);-webkit-overflow-scrolling:touch}
+#dt-ap-transfer .tr-ap-tabs::-webkit-scrollbar{display:none}
+#dt-ap-transfer .tr-ap-tabs::before,#dt-ap-transfer .tr-ap-tabs::after{content:'';position:sticky;top:0;width:1px;height:32px;flex:0 0 1px;z-index:2;pointer-events:none}
+#dt-ap-transfer .tr-ap-tabs::before{left:0;box-shadow:10px 0 12px rgba(243,246,250,.96)}
+#dt-ap-transfer .tr-ap-tabs::after{right:0;box-shadow:-10px 0 12px rgba(243,246,250,.96)}
+#dt-ap-transfer .tr-ap-tab{position:relative;flex:0 0 auto;height:32px;min-width:74px;padding:0 13px;display:flex;align-items:center;justify-content:center;border:1px solid var(--bd);background:var(--sf);border-radius:999px;font-family:var(--f);font-size:12px;font-weight:800;color:var(--c5);cursor:pointer;-webkit-tap-highlight-color:transparent;white-space:nowrap;scroll-snap-align:start;box-shadow:var(--sx)}
+#dt-ap-transfer .tr-ap-tab.act{background:var(--pr);border-color:var(--pr);color:#fff;box-shadow:0 4px 12px rgba(37,99,235,.18)}
+#dt-ap-transfer .tr-ap-tab.act::after{display:none}
+#dt-ap-transfer .tr-ap-panel{scroll-margin-top:58px}
+#dt-ap-transfer .tr-ap-panel+.tr-ap-panel{margin-top:12px}
+.tr-ap-lite-info,.tr-ap-card{background:var(--sf);border:1px solid rgba(226,232,240,.72);border-radius:14px;box-shadow:0 2px 10px rgba(15,23,42,.045);margin-bottom:10px}
+.tr-ap-lite-info{overflow:hidden}
+.tr-ap-lite-main{min-height:44px;padding:0 13px;display:flex;align-items:center;gap:10px;cursor:pointer}
+.tr-ap-lite-lb{font-size:12px;font-weight:600;color:var(--c5);width:56px;flex-shrink:0}
+.tr-ap-lite-val{font-size:14px;font-weight:800;color:var(--c9);flex:1}
+.tr-ap-lite-chev{width:18px;height:18px;color:var(--c4);transition:transform .18s;flex-shrink:0}
+.tr-ap-lite-info.open .tr-ap-lite-chev{transform:rotate(180deg)}
+.tr-ap-lite-more{display:none;border-top:1px solid var(--dv);padding:7px 13px 10px}
+.tr-ap-lite-info.open .tr-ap-lite-more{display:block}
+.tr-ap-lite-row{display:flex;align-items:flex-start;padding:5px 0;gap:10px}
+.tr-ap-lite-row .lb{width:56px;flex-shrink:0;font-size:11px;font-weight:600;color:var(--c5)}
+.tr-ap-lite-row .vl{flex:1;min-width:0;text-align:right;font-size:12px;font-weight:700;color:var(--c7);word-break:break-all}
+.tr-ap-lite-row .vl.mono{font-family:var(--m);font-size:11px}
+.tr-ap-card{padding:13px}
+.tr-ap-card-hd{display:flex;align-items:center;gap:8px;margin-bottom:11px}
+.tr-ap-no{width:22px;height:22px;border-radius:7px;background:#2563EB;color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--m);font-size:12px;font-weight:800;flex-shrink:0;box-shadow:0 2px 6px rgba(37,99,235,.18)}
+#dt-ap-transfer .tr-ap-card-hd .tr-ap-no{display:none}
+.tr-ap-card-title{font-size:14px;font-weight:800;color:#182235;flex:1}
+.tr-ap-count{height:20px;display:inline-flex;align-items:center;padding:0 8px;border-radius:10px;background:#EFF6FF;color:#2563EB;font-size:10px;font-weight:800;flex-shrink:0}
+.tr-ap-field-list{display:flex;flex-direction:column;gap:9px}
+.tr-ap-col-head{display:grid;grid-template-columns:1fr 22px 1fr;align-items:center;color:#7C8BA1;font-size:10px;font-weight:700;padding:0 10px 1px}
+.tr-ap-col-head span:last-child{text-align:right;color:#7C8BA1}
+.tr-ap-compare{border:1px solid #E7ECF3;border-radius:12px;padding:10px 11px;background:#fff}
+.tr-ap-compare.changed{background:#fff;border-color:#E5EAF1}
+.tr-ap-compare.same{background:#F8FAFD;border-color:#EEF2F7}
+.tr-ap-row-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.tr-ap-field{font-size:12px;font-weight:800;color:#243044}
+.tr-ap-change,.tr-ap-same{height:20px;display:inline-flex;align-items:center;padding:0 8px;border-radius:5px;font-size:10px;font-weight:800;flex-shrink:0}
+.tr-ap-change{background:#FFF8DB;color:#E4B400;border:1px solid #EBD777}
+.tr-ap-same{background:#fff;color:#8A97A8;border:1px solid #E5EAF1}
+.tr-ap-values{display:grid;grid-template-columns:minmax(0,1fr) 22px minmax(0,1fr);align-items:center;gap:6px}
+.tr-ap-old,.tr-ap-new,.tr-ap-single{font-size:12px;line-height:1.38;word-break:break-word}
+.tr-ap-old{color:#66758A;font-weight:700}
+.tr-ap-new{color:#334155;font-weight:700;text-align:right}
+.tr-ap-arr{font-family:var(--m);font-size:13px;font-weight:800;color:#94A3B8;text-align:center}
+.tr-ap-single{color:#243044;font-weight:700}
+.tr-ap-info-list{display:flex;flex-direction:column;gap:1px}
+.tr-ap-info-row{display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-bottom:1px solid var(--dv)}
+.tr-ap-info-row:last-child{border-bottom:0}
+.tr-ap-info-row .lb{width:82px;flex-shrink:0;font-size:12px;font-weight:600;color:var(--c5)}
+.tr-ap-info-row .vl{flex:1;min-width:0;text-align:right;font-size:13px;font-weight:700;color:var(--c9)}
+.tr-ap-extra{display:block}
+.tr-ap-section.collapsed .tr-ap-extra{display:none}
+.tr-ap-toggle{height:30px;margin:9px auto -2px;padding:0 12px;border:0;background:transparent;color:var(--c4);font-size:12px;font-weight:800;font-family:var(--f);display:flex;align-items:center;justify-content:center;gap:2px;cursor:pointer}
+.tr-ap-toggle:active{color:var(--pr)}
+.tr-ap-toggle:focus{outline:none}
+.tr-ap-toggle:focus-visible{outline:2px solid var(--pr100);outline-offset:2px;border-radius:8px}
+.tr-ap-record-panel{background:var(--sf);border:1px solid rgba(226,232,240,.8);border-radius:14px;box-shadow:0 2px 10px rgba(15,23,42,.045);padding:0;margin-bottom:10px;overflow:hidden}
+.tr-ap-rec-title{height:44px;display:flex;align-items:center;gap:8px;font-size:15px;font-weight:800;color:#182235;padding:0 14px;border-bottom:1px solid #EEF2F7}
+.tr-ap-rec-title svg{width:17px;height:17px;color:var(--pr);stroke-width:2.4}
+.tr-ap-rec-main{display:flex;align-items:center;gap:8px;min-width:0}
+.tr-ap-origin{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border-bottom:1px solid #EEF2F7;background:#FCFDFF}
+.tr-ap-origin-person{display:flex;align-items:center;gap:9px;min-width:0}
+.tr-ap-origin-av{width:34px;height:34px;border-radius:50%;background:#F1F5F9;color:#64748B;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;flex:0 0 34px;border:1px solid #E2E8F0}
+.tr-ap-origin-copy{min-width:0}
+.tr-ap-origin-name{font-size:13px;font-weight:800;color:#1E293B;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tr-ap-origin-sub{font-size:11px;font-weight:600;color:#94A3B8;line-height:1.25;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tr-ap-origin-time{font-family:var(--m);font-size:11px;font-weight:700;color:#64748B;line-height:1.3;text-align:right;white-space:nowrap}
+.tr-ap-timeline{position:relative;padding:14px 14px 16px 12px}
+.tr-ap-tl-item{position:relative;display:grid;grid-template-columns:24px minmax(0,1fr);column-gap:10px;padding-bottom:18px}
+.tr-ap-tl-item:last-child{padding-bottom:0}
+.tr-ap-tl-line{position:absolute;left:10px;top:16px;bottom:-2px;width:2px;background:#22C55E}
+.tr-ap-tl-line.done,.tr-ap-tl-line.pending,.tr-ap-tl-line.reject,.tr-ap-tl-line.withdraw{background:#22C55E}
+.tr-ap-tl-item:last-child .tr-ap-tl-line{display:none}
+.tr-ap-dot{width:16px;height:16px;margin:1px 0 0 2px;border-radius:50%;background:#fff;border:2px solid #22C55E;color:#22C55E;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 4px var(--sf);position:relative;z-index:1}
+.tr-ap-dot svg{display:none}
+.tr-ap-dot.done::after{content:'';width:6px;height:6px;border-radius:50%;background:#22C55E}
+.tr-ap-dot.start{border-color:#CBD5E1;color:#94A3B8}
+.tr-ap-dot.start::after{content:'';width:6px;height:6px;border-radius:50%;background:#fff}
+.tr-ap-dot.pending{border-color:#2563EB;color:#2563EB}
+.tr-ap-dot.pending::after{content:'L';width:auto;height:auto;background:transparent;color:#2563EB;font-family:var(--m);font-size:8px;font-weight:900;line-height:1}
+.tr-ap-dot.reject,.tr-ap-dot.disagree{border-color:#F43F5E;color:#F43F5E}
+.tr-ap-dot.reject::after,.tr-ap-dot.disagree::after{content:'';width:6px;height:6px;border-radius:50%;background:#F43F5E}
+.tr-ap-dot.withdraw,.tr-ap-dot.end,.tr-ap-dot.void{border-color:#CBD5E1;color:#94A3B8}
+.tr-ap-dot.withdraw::after,.tr-ap-dot.end::after,.tr-ap-dot.void::after{content:'';width:6px;height:6px;border-radius:50%;background:#CBD5E1}
+.tr-ap-dot.cc{border-color:#22C55E}
+.tr-ap-dot.cc::after{content:'';width:6px;height:6px;border-radius:50%;background:#22C55E}
+.tr-ap-node{min-width:0;background:transparent;border:0;border-radius:0;padding:0}
+.tr-ap-node-hd{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;min-height:22px;margin:0 0 8px;padding:0}
+.tr-ap-node-title{display:flex;align-items:center;gap:6px;min-width:0;flex:1}
+.tr-ap-node-name{font-size:14px;font-weight:800;color:#1E293B;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tr-ap-node-meta{display:flex;align-items:center;justify-content:flex-end;flex-shrink:0;min-width:46px}
+.tr-ap-rel-time,.tr-ap-end-time{display:none}
+.tr-ap-duration-tag{height:20px;display:inline-flex;align-items:center;justify-content:center;padding:0 8px;border-radius:10px;background:#F1F5F9;color:#64748B;font-size:10px;font-weight:800;line-height:1;white-space:nowrap}
+.tr-ap-duration-tag.pending{background:#EFF6FF;color:#2563EB;min-width:42px}
+.tr-ap-node-detail{margin:0;padding:0;border:0}
+.tr-ap-users{display:flex;flex-direction:column;gap:8px;margin:0}
+.tr-ap-user{display:flex;align-items:center;gap:8px;min-width:0;max-width:100%}
+.tr-ap-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#EAF2FF,#DCEBFF);color:#2563EB;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;flex:0 0 34px;border:1px solid rgba(37,99,235,.12)}
+.tr-ap-avatar.green{background:#DCFCE7;color:#16A34A;border-color:#BBF7D0}
+.tr-ap-avatar.gray{background:#F1F5F9;color:#64748B;border-color:#E2E8F0}
+.tr-ap-avatar.system{background:#3B82F6;color:#fff;border-color:#3B82F6}
+.tr-ap-user-copy{min-width:0;flex:1}
+.tr-ap-user-main{display:flex;align-items:center;gap:4px;font-size:14px;font-weight:700;color:#253041;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tr-ap-workno{display:inline;font-size:12px;font-weight:600;color:#64748B}
+.tr-ap-user-desc{display:block;margin-top:3px;font-size:12px;font-weight:700;color:#22C55E;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tr-ap-node.pending .tr-ap-user-desc{color:#2563EB}
+.tr-ap-node.reject .tr-ap-user-desc,.tr-ap-node.disagree .tr-ap-user-desc{color:#F43F5E}
+.tr-ap-node.withdraw .tr-ap-user-desc,.tr-ap-node.void .tr-ap-user-desc{color:#64748B}
+.tr-ap-node.auto .tr-ap-user-desc{color:#1E293B}
+.tr-ap-node.fail .tr-ap-user-desc{color:#F43F5E}
+.tr-ap-action-box{display:none}
+.tr-ap-action-extra{display:block;margin:7px 0 0 42px;font-size:12px;font-weight:600;line-height:1.45;color:#1E293B;word-break:break-word}
+.tr-ap-action-extra.reject,.tr-ap-action-extra.disagree,.tr-ap-action-extra.fail{color:#F43F5E}
+.tr-ap-action-extra.transfer,.tr-ap-action-extra.addsign,.tr-ap-action-extra.intervene{color:#1E293B}
+.tr-ap-action-note{display:block;max-width:100%;margin:10px 0 0 42px;padding:8px 10px;border:0;border-radius:8px;background:#F8FAFC;color:#475569;font-size:12px;line-height:1.45}
+.tr-ap-action-note.reject,.tr-ap-action-note.disagree,.tr-ap-action-note.fail{color:#F43F5E;background:#FFF1F2}
+.tr-ap-field-lb{display:none}
+.tr-ap-note-text{min-width:0;word-break:break-word}
+
+/* ── Transfer Approval Record: screenshot-aligned mobile timeline ── */
+#dt-ap-transfer .tr-ap-record-panel{background:var(--sf);border:0;border-radius:var(--r2);box-shadow:none;overflow:hidden;margin-bottom:12px}
+#dt-ap-transfer .tr-ap-record-panel{font-size:11px}
+#dt-ap-transfer .tr-ap-rec-title{height:42px;padding:0 14px;border-bottom:1px solid var(--dv);font-size:12px;font-weight:800;color:var(--c9)}
+#dt-ap-transfer .tr-ap-rec-title svg{width:15px;height:15px;color:var(--pr);stroke-width:2.3}
+#dt-ap-transfer .tr-ap-timeline{position:relative;padding:14px 14px 18px 14px;background:var(--sf)}
+#dt-ap-transfer .tr-ap-tl-item{position:relative;display:grid;grid-template-columns:16px minmax(0,1fr);column-gap:10px;padding-bottom:18px}
+#dt-ap-transfer .tr-ap-tl-item:last-child{padding-bottom:0}
+#dt-ap-transfer .tr-ap-tl-line{position:absolute;left:6px;top:14px;bottom:-3px;width:1px;background:var(--em)}
+#dt-ap-transfer .tr-ap-tl-line.start{background:var(--c2)}
+#dt-ap-transfer .tr-ap-tl-line.reject,#dt-ap-transfer .tr-ap-tl-line.disagree,#dt-ap-transfer .tr-ap-tl-line.fail{background:var(--ro)}
+#dt-ap-transfer .tr-ap-tl-line.withdraw,#dt-ap-transfer .tr-ap-tl-line.void,#dt-ap-transfer .tr-ap-tl-line.end{background:var(--c2)}
+#dt-ap-transfer .tr-ap-tl-item:last-child .tr-ap-tl-line{display:none}
+#dt-ap-transfer .tr-ap-dot{width:13px;height:13px;margin:1px 0 0 0;border-radius:50%;border:2px solid var(--em);box-shadow:0 0 0 4px var(--sf);display:flex;align-items:center;justify-content:center;position:relative;z-index:1;color:transparent;background:var(--sf)}
+#dt-ap-transfer .tr-ap-dot svg{display:none}
+#dt-ap-transfer .tr-ap-dot.start,#dt-ap-transfer .tr-ap-dot.end,#dt-ap-transfer .tr-ap-dot.withdraw,#dt-ap-transfer .tr-ap-dot.void{border-color:var(--c3);background:var(--sf)}
+#dt-ap-transfer .tr-ap-dot.pending{border-color:var(--pr);background:var(--sf)}
+#dt-ap-transfer .tr-ap-dot.pending svg{display:block;width:9px;height:9px;color:var(--pr);stroke-width:2.4}
+#dt-ap-transfer .tr-ap-dot.reject,#dt-ap-transfer .tr-ap-dot.disagree,#dt-ap-transfer .tr-ap-dot.fail{border-color:var(--ro);background:var(--sf)}
+#dt-ap-transfer .tr-ap-dot.cc{border-color:var(--em);background:var(--sf)}
+#dt-ap-transfer .tr-ap-dot::after{display:none!important}
+#dt-ap-transfer .tr-ap-node{position:relative;min-width:0;padding:0;background:transparent;border:0}
+#dt-ap-transfer .tr-ap-node-hd{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;min-height:18px;margin:0 0 8px}
+#dt-ap-transfer .tr-ap-node-title{display:flex;align-items:center;gap:6px;min-width:0;flex:1;flex-wrap:nowrap}
+#dt-ap-transfer .tr-ap-node-name{flex:0 1 auto;min-width:0;font-size:13px;font-weight:800;color:var(--c9);line-height:1.25;white-space:normal;overflow:visible;text-overflow:clip}
+#dt-ap-transfer .tr-ap-node-badge{height:16px;display:inline-flex;align-items:center;padding:0 6px;border-radius:8px;background:var(--pr50);color:var(--pr);font-size:9px;font-weight:800;line-height:1;white-space:nowrap}
+#dt-ap-transfer .tr-ap-node-badge.warn{background:var(--ac50);color:#B45309}
+#dt-ap-transfer .tr-ap-node-badge.gray{background:var(--s2);color:var(--c5)}
+#dt-ap-transfer .tr-ap-node-badge.danger{background:var(--ro50);color:var(--ro)}
+#dt-ap-transfer .tr-ap-node-meta{display:flex;align-items:flex-start;justify-content:flex-end;min-width:128px;max-width:none;text-align:right;flex-shrink:0;margin-left:auto}
+#dt-ap-transfer .tr-ap-meta-stack{display:flex;flex-direction:column;align-items:flex-end;gap:2px;min-width:0}
+#dt-ap-transfer .tr-ap-duration-tag{min-height:16px;display:inline-flex;align-items:center;justify-content:flex-end;gap:3px;margin-left:2px;padding:0;border-radius:0;background:transparent;color:var(--c4);font-family:var(--f);font-size:11px;font-weight:600;line-height:1.35;white-space:nowrap;flex:0 0 auto}
+#dt-ap-transfer .tr-ap-duration-tag svg{display:none}
+#dt-ap-transfer .tr-ap-duration-tag.pending{min-width:0;background:var(--pr50);color:var(--pr)}
+#dt-ap-transfer .tr-ap-users{display:flex;flex-direction:column;gap:8px;margin:0;padding-right:0}
+#dt-ap-transfer .tr-ap-users.multi{flex-direction:column;align-items:stretch;flex-wrap:nowrap;gap:8px}
+#dt-ap-transfer .tr-ap-user{display:flex;align-items:center;gap:9px;min-width:0;max-width:100%}
+#dt-ap-transfer .tr-ap-users.multi .tr-ap-user{max-width:100%}
+#dt-ap-transfer .tr-ap-avatar{width:32px;height:32px;border-radius:50%;flex:0 0 32px;border:1px solid var(--bd);font-size:11px;font-weight:900;background:var(--pr50);color:var(--pr)}
+#dt-ap-transfer .tr-ap-avatar.avc0{background:var(--pr50);color:var(--pr);border-color:var(--pr100)}
+#dt-ap-transfer .tr-ap-avatar.avc1{background:var(--em50);color:var(--em700);border-color:var(--em100)}
+#dt-ap-transfer .tr-ap-avatar.avc2{background:var(--ac50);color:#92400E;border-color:var(--ac100)}
+#dt-ap-transfer .tr-ap-avatar.avc3{background:var(--vi50);color:var(--vi);border-color:#DDD6FE}
+#dt-ap-transfer .tr-ap-avatar.avc4{background:var(--cy50);color:#0E7490;border-color:#CFFAFE}
+#dt-ap-transfer .tr-ap-avatar.avc5{background:var(--ro50);color:var(--ro);border-color:var(--ro100)}
+#dt-ap-transfer .tr-ap-avatar.avc6{background:var(--or50);color:var(--or);border-color:rgba(249,115,22,.22)}
+#dt-ap-transfer .tr-ap-avatar.green{background:var(--em50);color:var(--em700);border-color:var(--em100)}
+#dt-ap-transfer .tr-ap-avatar.gray{background:var(--c1);color:var(--c5);border-color:var(--c2)}
+#dt-ap-transfer .tr-ap-avatar.system{background:var(--pr);color:#fff;border-color:var(--pr)}
+#dt-ap-transfer .tr-ap-user-copy{min-width:0;flex:1}
+#dt-ap-transfer .tr-ap-user-main{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;font-size:12px;font-weight:700;color:var(--c9);line-height:1.28;white-space:normal;overflow:visible;text-overflow:clip}
+#dt-ap-transfer .tr-ap-user-name{min-width:0;word-break:break-word}
+#dt-ap-transfer .tr-ap-workno{margin-left:3px;font-size:11px;font-weight:600;color:var(--c4)}
+#dt-ap-transfer .tr-ap-user-end{flex-shrink:0;font-family:var(--f);font-size:11px;font-weight:600;color:var(--c4);line-height:1.35;text-align:right;white-space:nowrap}
+#dt-ap-transfer .tr-ap-user-desc{display:block;margin-top:3px;font-size:11px;font-weight:700;color:var(--pr);line-height:1.25;white-space:normal;overflow:visible;text-overflow:clip;word-break:break-word}
+#dt-ap-transfer .tr-ap-user-result-inline{margin-top:4px;color:var(--em);font-size:12px;font-weight:800;line-height:1.2}
+#dt-ap-transfer .tr-ap-user-note{display:block;margin-top:7px;padding:7px 8px;border-radius:6px;background:var(--s2);color:var(--c9);font-size:11px;font-weight:600;line-height:1.45;word-break:break-word}
+#dt-ap-transfer .tr-ap-user-note-result{display:block;color:var(--em);font-size:12px;font-weight:800;line-height:1.2}
+#dt-ap-transfer .tr-ap-user-note-divider{display:block;height:1px;margin:6px 0;background:var(--dv)}
+#dt-ap-transfer .tr-ap-node.auto .tr-ap-user{align-items:flex-start}
+#dt-ap-transfer .tr-ap-node.sign-node .tr-ap-user{align-items:flex-start;gap:10px}
+#dt-ap-transfer .tr-ap-node.sign-node .tr-ap-avatar{margin-top:0}
+#dt-ap-transfer .tr-ap-node.sign-node .tr-ap-user-copy{padding-top:1px}
+#dt-ap-transfer .tr-ap-node.sign-node .tr-ap-user-main{align-items:flex-start}
+#dt-ap-transfer .tr-ap-user-desc.starter{color:var(--c5)}
+#dt-ap-transfer .tr-ap-node.pending .tr-ap-user-desc{color:var(--pr)}
+#dt-ap-transfer .tr-ap-node.reject .tr-ap-user-desc,#dt-ap-transfer .tr-ap-node.disagree .tr-ap-user-desc,#dt-ap-transfer .tr-ap-node.fail .tr-ap-user-desc{color:var(--ro)}
+#dt-ap-transfer .tr-ap-node.withdraw .tr-ap-user-desc,#dt-ap-transfer .tr-ap-node.void .tr-ap-user-desc,#dt-ap-transfer .tr-ap-node.auto .tr-ap-user-desc{color:var(--c5)}
+#dt-ap-transfer .tr-ap-node .tr-ap-user-result-inline{color:var(--em)}
+#dt-ap-transfer .tr-ap-time-row{display:flex;align-items:flex-start;justify-content:flex-end;gap:0;margin:0;color:var(--c4);font-family:var(--f);font-size:11px;font-weight:600;line-height:1.35;text-align:right;white-space:nowrap}
+#dt-ap-transfer .tr-ap-time-row svg{display:none}
+#dt-ap-transfer .tr-ap-action-box{display:block;margin:4px 0 0 41px;background:transparent;border:0;border-radius:0;padding:0;font-size:12px;font-weight:500;line-height:1.45;color:var(--c7);word-break:break-word}
+#dt-ap-transfer .tr-ap-action-box .tr-ap-result{display:block;font-size:11px;font-weight:800;margin-bottom:4px;color:var(--em);line-height:1.35;white-space:normal;word-break:break-word}
+#dt-ap-transfer .tr-ap-action-box.reject .tr-ap-result,#dt-ap-transfer .tr-ap-action-box.disagree .tr-ap-result,#dt-ap-transfer .tr-ap-action-box.fail .tr-ap-result{color:var(--ro)}
+#dt-ap-transfer .tr-ap-action-box.reject,#dt-ap-transfer .tr-ap-action-box.disagree,#dt-ap-transfer .tr-ap-action-box.fail{background:transparent;color:var(--ro)}
+#dt-ap-transfer .tr-ap-action-box.auto{background:transparent;color:var(--c7)}
+#dt-ap-transfer .tr-ap-action-box.success{background:transparent;color:var(--em700)}
+#dt-ap-transfer .tr-ap-box-ok{color:var(--em);font-weight:800}
+#dt-ap-transfer .tr-ap-box-strong{color:var(--c9);font-weight:800;white-space:normal;word-break:break-word}
+#dt-ap-transfer .tr-ap-opinion{display:block;margin-top:6px;padding:7px 8px;border-radius:6px;background:var(--s2);color:var(--c7);font-weight:500;line-height:1.5}
+#dt-ap-transfer .tr-ap-action-box.reject .tr-ap-note-text,#dt-ap-transfer .tr-ap-action-box.disagree .tr-ap-note-text,#dt-ap-transfer .tr-ap-action-box.void .tr-ap-note-text{display:block;margin-top:6px;padding:7px 8px;border-radius:6px;background:var(--s2);color:var(--c7);font-weight:500;line-height:1.5}
+#dt-ap-transfer .tr-ap-box-divider{height:1px;background:var(--dv);margin:5px 0}
+#dt-ap-transfer .tr-ap-action-box.intervene{margin-top:10px;padding:10px 11px;border-radius:8px;background:var(--s2);color:var(--c9);font-size:12px;font-weight:600;line-height:1.55}
+#dt-ap-transfer .tr-ap-intervene-title{display:block;margin-bottom:8px;color:var(--em700);font-size:12px;font-weight:900;line-height:1.25}
+#dt-ap-transfer .tr-ap-action-box.intervene .tr-ap-note-text{color:var(--c9);font-size:12px;font-weight:600;line-height:1.55}
+#dt-ap-transfer .tr-ap-action-box.fail.all-cc-fail{margin:7px 0 0 0;padding:9px 10px;border-radius:6px;background:var(--s2);color:var(--c9);font-size:12px;font-weight:600;line-height:1.45}
+#dt-ap-transfer .tr-ap-action-box.fail.all-cc-fail .tr-ap-result{display:inline;margin:0;color:var(--ro);font-size:12px;font-weight:800;line-height:1.45}
+#dt-ap-transfer .tr-ap-action-box.fail.all-cc-fail .tr-ap-note-text{display:inline;color:var(--c9);font-size:12px;font-weight:600;line-height:1.45}
+#dt-ap-transfer .tr-ap-action-box.withdraw .tr-ap-result,#dt-ap-transfer .tr-ap-action-box.void .tr-ap-result,#dt-ap-transfer .tr-ap-action-box.auto .tr-ap-result,#dt-ap-transfer .tr-ap-action-box.transfer .tr-ap-result,#dt-ap-transfer .tr-ap-action-box.addsign .tr-ap-result,#dt-ap-transfer .tr-ap-action-box.intervene .tr-ap-result{color:var(--c7)}
+#dt-ap-transfer .tr-ap-action-box.start .tr-ap-result{color:var(--c9);font-weight:700}
+#dt-ap-transfer .tr-ap-action-extra{display:none}
+#dt-ap-transfer .tr-ap-action-note{display:none}
+#dt-ap-transfer .tr-ap-node.pending .tr-ap-action-box{display:none}
+#dt-ap-transfer .tr-ap-node.cc .tr-ap-action-box:not(.fail){display:none}
+#dt-ap-transfer .tr-ap-node.cc .tr-ap-users.multi{display:flex;flex-direction:column;align-items:stretch;gap:7px}
+#dt-ap-transfer .tr-ap-node.cc .tr-ap-user{gap:9px}
+#dt-ap-transfer .tr-ap-node.cc .tr-ap-avatar{width:32px;height:32px;flex-basis:32px;font-size:11px;border-width:1px}
+#dt-ap-transfer .tr-ap-node.cc .tr-ap-user-main{font-size:11px;line-height:1.2;justify-content:flex-start;gap:2px}
+#dt-ap-transfer .tr-ap-node.cc .tr-ap-workno{font-size:10px;margin-left:1px}
+#dt-ap-transfer .tr-ap-node.pending-tail .tr-ap-node-hd{margin-bottom:8px}
+#dt-ap-transfer .tr-ap-node.pending-tail .tr-ap-avatar{width:32px;height:32px;flex-basis:32px;font-size:11px;background:var(--cy50);color:#0891B2;border-color:#67E8F9}
+#dt-ap-transfer .tr-ap-node.pending-tail .tr-ap-user{align-items:flex-start;gap:8px}
+#dt-ap-transfer .tr-ap-node.pending-tail .tr-ap-user-main{font-size:12px;font-weight:600;justify-content:flex-start}
+#dt-ap-transfer .tr-ap-node.pending-tail .tr-ap-user-desc{margin-top:2px;color:var(--c9);font-weight:500}
+#dt-ap-transfer .tr-ap-node-detail.no-users .tr-ap-action-box{margin-left:0;margin-right:0}
+
+@media (max-width:380px){
+  #dt-ap-transfer .tr-ap-node-hd{gap:8px}
+  #dt-ap-transfer .tr-ap-node-meta{min-width:118px;max-width:none}
+  #dt-ap-transfer .tr-ap-time-row{font-size:11px}
+}
+#dt-ap-transfer .tr-ap-record-panel,
+#dt-ap-transfer .tr-ap-record-panel *{font-size:11px}
+
+
+
+html{background:#D8E0EA;scroll-behavior:smooth}
+body{min-height:100vh;display:block;padding:0;background:#D8E0EA;color:var(--c9);font-family:var(--f)}
+.ref-page{max-width:1180px;margin:0 auto;padding:18px 18px 48px}
+.ref-top{position:sticky;top:0;z-index:20;margin:0 -18px 14px;padding:12px 18px;background:rgba(216,224,234,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid rgba(148,163,184,.28)}
+.ref-title{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;max-width:1180px;margin:0 auto 10px}
+.ref-title h1{font-size:18px;line-height:1.25;font-weight:900;color:var(--c9);letter-spacing:0}
+.ref-title p{margin-top:4px;font-size:11px;font-weight:600;color:var(--c5);line-height:1.5}
+.ref-count{flex:0 0 auto;height:28px;display:inline-flex;align-items:center;padding:0 10px;border-radius:999px;background:var(--sf);border:1px solid var(--bd);color:var(--c5);font-size:11px;font-weight:800}
+.ref-nav{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;max-width:1180px;margin:0 auto;padding-bottom:1px}
+.ref-nav::-webkit-scrollbar{display:none}
+.ref-nav a{height:30px;display:inline-flex;align-items:center;white-space:nowrap;padding:0 11px;border-radius:999px;background:var(--sf);border:1px solid var(--bd);color:var(--c7);font-size:11px;font-weight:800;text-decoration:none;box-shadow:var(--sx)}
+.ref-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.ref-section{min-width:0;background:var(--sf);border:1px solid rgba(15,23,42,.06);border-radius:16px;box-shadow:0 6px 20px rgba(15,23,42,.06);overflow:hidden}
+.ref-section.full{grid-column:1/-1}
+.ref-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:13px 14px 10px;border-bottom:1px solid var(--dv);background:linear-gradient(180deg,#fff,#F8FAFC)}
+.ref-head-main{min-width:0}
+.ref-kicker{font-size:10px;font-weight:800;color:var(--c4);line-height:1.2;margin-bottom:3px}
+.ref-head h2{font-size:14px;font-weight:900;color:var(--c9);line-height:1.25}
+.ref-head p{margin-top:5px;font-size:11px;font-weight:600;color:var(--c5);line-height:1.45}
+.ref-status{flex:0 0 auto;height:24px;display:inline-flex;align-items:center;padding:0 9px;border-radius:999px;font-size:11px;font-weight:900;border:1px solid var(--bd);background:var(--sf)}
+.ref-status.pd{color:#2F7DEB;background:var(--pr50);border-color:var(--pr100)}
+.ref-status.ok{color:var(--em700);background:var(--em50);border-color:var(--em100)}
+.ref-status.bh,.ref-status.btg{color:var(--ro);background:var(--ro50);border-color:var(--ro100)}
+.ref-status.rj,.ref-status.zz{color:var(--c5);background:var(--s2);border-color:var(--c2)}
+.ref-body{padding:0;background:var(--sf)}
+.ref-note{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:16px}
+.ref-note .item{background:rgba(255,255,255,.72);border:1px solid rgba(15,23,42,.06);border-radius:12px;padding:10px 11px;box-shadow:var(--sx)}
+.ref-note .item strong{display:block;font-size:11px;font-weight:900;color:var(--c9);line-height:1.3}
+.ref-note .item span{display:block;margin-top:4px;font-size:11px;font-weight:600;color:var(--c5);line-height:1.45}
+#dt-ap-transfer{display:block}
+#dt-ap-transfer .tr-ap-record-panel{margin:0;border-radius:0}
+#dt-ap-transfer .tr-ap-rec-title{display:flex;align-items:center;justify-content:space-between}
+#dt-ap-transfer .tr-ap-record-panel,#dt-ap-transfer .tr-ap-record-panel *{font-size:11px}
+#dt-ap-transfer .tr-ap-origin{display:flex}
+@media (max-width:900px){.ref-grid{grid-template-columns:1fr}.ref-note{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){.ref-page{padding:0 0 32px}.ref-top{margin:0;padding:12px 14px}.ref-grid{gap:10px}.ref-section{border-left:0;border-right:0;border-radius:0}.ref-title h1{font-size:16px}.ref-note{grid-template-columns:1fr;margin:12px 14px}.ref-count{display:none}}
+
+</style>
+</head>
+<body>
+<main id="dt-ap-transfer" class="ref-page">
+  <header class="ref-top">
+    <div class="ref-title">
+      <div>
+        <h1>审批记录全场景参考页</h1>
+        <p>基于 transfer-debug-0631.html 当前审批记录节点样式和渲染内容生成，供开发对照流程状态、节点内容和异常展示。</p>
+      </div>
+      <span class="ref-count">6 个流程状态 + 节点干预 + 节点样式库</span>
+    </div>
+    <nav class="ref-nav">
+      <a href="#status-pd">审批中</a><a href="#status-ok">同意</a><a href="#status-bh">已驳回</a><a href="#status-rj">已撤回</a><a href="#status-btg">不同意</a><a href="#status-zz">已作废</a>
+      <a href="#scene-intervene">节点干预</a><a href="#node-library">节点样式库</a>
+    </nav>
+  </header>
+
+  <div class="ref-note">
+    <div class="item"><strong>常规节点</strong><span>发起、同意、结束、待处理。</span></div>
+    <div class="item"><strong>流转节点</strong><span>转交、驳回、前加签、后加签。</span></div>
+    <div class="item"><strong>多人节点</strong><span>或签、会签、自动跳过、自动完成。</span></div>
+    <div class="item"><strong>异常节点</strong><span>不同意、作废、撤回、节点干预、抄送失败。</span></div>
+  </div>
+
+  <div class="ref-grid">
+    
+  <section class="ref-section" id="status-pd">
+    <div class="ref-head">
+      <div class="ref-head-main">
+        <div class="ref-kicker">流程状态</div>
+        <h2>审批中</h2>
+        <p>包含撤回后重新提交、转交、转交后同意、驳回到历史节点、前加签、后加签、抄送成功、待处理尾节点。</p>
+      </div>
+      <span class="ref-status pd">审批中</span>
+    </div>
+    <div class="ref-body">
+    <div class="tr-ap-record-panel">
+      <div class="tr-ap-rec-title">
+        <div class="tr-ap-rec-main">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 7h10"></path><path d="M7 12h6"></path><path d="M5 4h14a2 2 0 012 2v9a2 2 0 01-2 2h-5l-4 3v-3H5a2 2 0 01-2-2V6a2 2 0 012-2z"></path></svg>
+          <span>审批记录</span>
+        </div>
+      </div>
+      <div class="tr-ap-origin"><div class="tr-ap-origin-person"><div class="tr-ap-origin-av">伊</div><div class="tr-ap-origin-copy"><div class="tr-ap-origin-name">伊夏青</div><div class="tr-ap-origin-sub">zt24701</div></div></div><div class="tr-ap-origin-time">2026/03/05 09:00</div></div>
+      <div class="tr-ap-timeline"><div class="tr-ap-tl-item"><div><div class="tr-ap-dot start"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="4"></circle></svg></div><div class="tr-ap-tl-line done"></div></div><div class="tr-ap-node start start"><div class="tr-ap-node-hd"><div class="tr-ap-node-title"><div class="tr-ap-node-name">发起人</div></div><div class="tr-ap-node-meta"></div></div><div class="tr-ap-node-detail"><div class="tr-ap-users"><div class="tr-ap-user"><div class="tr-ap-avatar avc1">伊</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">伊夏青<span class="tr-ap-workno"> zt24701</span></span><span class="tr-ap-user-end">2026/03/05 09:00</span></div></div></div></div><div class="tr-ap-action-box gray"><div class="tr-ap-note-text">提交</div></div></div></div></div><div class="tr-ap-tl-item"><div><div class="tr-ap-dot done"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 13l4 4L19 7"></path></svg></div><div class="tr-ap-tl-line done"></div></div><div class="tr-ap-node done done"><div class="tr-ap-node-hd"><div class="tr-ap-node-title"><div class="tr-ap-node-name">直接上级</div></div><div class="tr-ap-node-meta"><span class="tr-ap-duration-tag">1小时</span></div></div><div class="tr-ap-node-detail"><div class="tr-ap-users"><div class="tr-ap-user"><div class="tr-ap-avatar avc1">朱</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">朱雨儿<span class="tr-ap-workno"> zt23432</span></span><span class="tr-ap-user-end">2026/03/05 10:05</span></div></div></div></div><div class="tr-ap-action-box gray"><span class="tr-ap-box-ok">同意</span></div></div></div></div><div class="tr-ap-tl-item"><div><div class="tr-ap-dot withdraw"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 14l-4-4 4-4"></path><path d="M5 10h11a4 4 0 010 8h-1"></path></svg></div><div class="tr-ap-tl-line done"></div></div><div class="tr-ap-node withdraw withdraw"><div class="tr-ap-node-hd"><div class="tr-ap-node-title"><div class="tr-ap-node-name">发起人</div></div><div class="tr-ap-node-meta"></div></div><div class="tr-ap-node-detail"><div class="tr-ap-users"><div class="tr-ap-user"><div class="tr-ap-avatar avc1">伊</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">伊夏青<span class="tr-ap-workno"> zt24701</span></span><span class="tr-ap-user-end">2026/03/05 09:00</span></div></div></div></div><div class="tr-ap-action-box gray"><div class="tr-ap-note-text">撤回</div></div></div></div></div><div class="tr-ap-tl-item"><div><div class="tr-ap-dot done"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 13l4 4L19 7"></path></svg></div><div class="tr-ap-tl-line done"></div></div><div class="tr-ap-node done done"><div class="tr-ap-node-hd"><div class="tr-ap-node-title"><div class="tr-ap-node-name">发起人</div></div><div class="tr-ap-node-meta"></div></div><div class="tr-ap-node-detail"><div class="tr-ap-users"><div class="tr-ap-user"><div class="tr-ap-avatar avc1">伊</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">伊夏青<span class="tr-ap-workno"> zt24701</span></span><span class="tr-ap-user-end">2026/03/05 09:00</span></div></div></div></div><div class="tr-ap-action-box gray"><div class="tr-ap-note-text">重新提交</div></div></div></div></div><div class="tr-ap-tl-item"><div><div class="tr-ap-dot done"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 13l4 4L19 7"></path></svg></div><div class="tr-ap-tl-line done"></div></div><div class="tr-ap-node transfer done"><div class="tr-ap-node-hd"><div class="tr-ap-node-title"><div class="tr-ap-node-name">直接上级</div></div><div class="tr-ap-node-meta"><span class="tr-ap-duration-tag">1小时</span></div></div><div class="tr-ap-node-detail"><div class="tr-ap-users"><div class="tr-ap-user"><div class="tr-ap-avatar avc1">朱</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">朱雨儿<span class="tr-ap-workno"> zt23432</span></span><span class="tr-ap-user-end">2026/03/05 10:05</span></div></div></div></div><div class="tr-ap-action-box gray"><div class="tr-ap-box-strong">转交：谭小小 zt23454</div><div class="tr-ap-opinion">员工的出差期间是否有工作冲突？请帮忙审核转交</div></div></div></div></div><div class="tr-ap-tl-item"><div><div class="tr-ap-dot done"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 13l4 4L19 7"></path></svg></div><div class="tr-ap-tl-line reject"></div></div><div class="tr-ap-node done done"><div class="tr-ap-node-hd"><div class="tr-ap-node-title"><div class="tr-ap-node-name">直接上级（转交）</div></div><div class="tr-ap-node-meta"><span class="tr-ap-duration-tag">1小时</span></div></div><div class="tr-ap-node-detail"><div class="tr-ap-users"><div class="tr-ap-user"><div class="tr-ap-avatar avc6">谭</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">谭小小<span class="tr-ap-workno"> zt23445</span></span><span class="tr-ap-user-end">2026/03/05 10:05</span></div></div></div></div><div class="tr-ap-action-box gray"><span class="tr-ap-box-ok">同意</span></div></div></div></div><div class="tr-ap-tl-item"><div><div class="tr-ap-dot reject"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 6L6 18M6 6l12 12"></path></svg></div><div class="tr-ap-tl-line done"></div></div><div class="tr-ap-node reject reject reject"><div class="tr-ap-node-hd"><div class="tr-ap-node-title"><div class="tr-ap-node-name">间接上级</div></div><div class="tr-ap-node-meta"><span class="tr-ap-duration-tag">1小时</span></div></div><div class="tr-ap-node-detail"><div class="tr-ap-users"><div class="tr-ap-user"><div class="tr-ap-avatar avc6">谭</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">谭小小<span class="tr-ap-workno"> zt23445</span></span><span class="tr-ap-user-end">2026/03/05 10:05</span></div></div></div></div><div class="tr-ap-action-box gray"><div class="tr-ap-box-strong">驳回到直接上级：谭小小 zt23454</div><div class="tr-ap-opinion">请直接上级朱雨儿先审批。</div></div></div></div></div><div class="tr-ap-tl-item"><div><div class="tr-ap-dot done"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 13l4 4L19 7"></path></svg></div><div class="tr-ap-tl-line done"></div></div><div class="tr-ap-node done done"><div class="tr-ap-node-hd"><div class="tr-ap-node-title"><div class="tr-ap-node-name">直接上级</div></div><div class="tr-ap-node-meta"><span class="tr-ap-duration-tag">1小时</span></div></div><div class="tr-ap-node-detail"><div class="tr-ap-users"><div class="tr-ap-user"><div class="tr-ap-avatar avc1">朱</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">朱雨儿<span class="tr-ap-workno"> zt23432</span></span><span class="tr-ap-user-end">2026/03/05 10:05</span></div></div></div></div><div class="tr-ap-action-box gray"><span class="tr-ap-box-ok">同意</span></div></div></div></div><div class="tr-ap-tl-item"><div><div class="tr-ap-dot done"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 13l4 4L19 7"></path></svg></div><div class="tr-ap-tl-line done"></div></div><div class="tr-ap-node addsign done"><div class="tr-ap-node-hd"><div class="tr-ap-node-title"><div class="tr-ap-node-name">海外HRBP</div></div><div class="tr-ap-node-meta"><span class="tr-ap-duration-tag">1小时</span></div></div><div class="tr-ap-node-detail"><div class="tr-ap-users"><div class="tr-ap-user"><div class="tr-ap-avatar avc3">袁</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">袁亚兴<span class="tr-ap-workno"> zt23432</span></span><span class="tr-ap-user-end">2026/03/05 10:05</span></div></div></div></div><div class="tr-ap-action-box gray"><div class="tr-ap-note-text">前加签：谢蓉蓉 zt55555</div></div></div></div></div><div class="tr-ap-tl-item"><div><div class="tr-ap-dot done"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 13l4 4L19 7"></path></svg></div><div class="tr-ap-tl-line done"></div></div><div class="tr-ap-node done done"><div class="tr-ap-node-hd"><div class="tr-ap-node-title"><div class="tr-ap-node-name">海外HRBP（加签）</div></div><div class="tr-ap-node-meta"><span class="tr-ap-duration-tag">1小时</span></div></div><div class="tr-ap-node-detail"><div class="tr-ap-users"><div class="tr-ap-user"><div class="tr-ap-avatar avc4">谢</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">谢蓉蓉<span class="tr-ap-workno"> zt55555</span></span><span class="tr-ap-user-end">2026/03/05 10:05</span></div></div></div></div><div class="tr-ap-action-box gray"><span class="tr-ap-box-ok">同意</span></div></div></div></div><div class="tr-ap-tl-item"><div><div class="tr-ap-dot done"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 13l4 4L19 7"></path></svg></div><div class="tr-ap-tl-line done"></div></div><div class="tr-ap-node done done"><div class="tr-ap-node-hd"><div class="tr-ap-node-title"><div class="tr-ap-node-name">海外HRBP</div></div><div class="tr-ap-node-meta"><span class="tr-ap-duration-tag">1小时</span></div></div><div class="tr-ap-node-detail"><div class="tr-ap-users"><div class="tr-ap-user"><div class="tr-ap-avatar avc3">袁</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">袁亚兴<span class="tr-ap-workno"> zt23432</span></span><span class="tr-ap-user-end">2026/03/05 10:05</span></div></div></div></div><div class="tr-ap-action-box gray"><span class="tr-ap-box-ok">同意</span></div></div></div></div><div class="tr-ap-tl-item"><div><div class="tr-ap-dot done"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 13l4 4L19 7"></path></svg></div><div class="tr-ap-tl-line done"></div></div><div class="tr-ap-node addsign done"><div class="tr-ap-node-hd"><div class="tr-ap-node-title"><div class="tr-ap-node-name">海外行政</div></div><div class="tr-ap-node-meta"><span class="tr-ap-duration-tag">1小时</span></div></div><div class="tr-ap-node-detail"><div class="tr-ap-users"><div class="tr-ap-user"><div class="tr-ap-avatar avc6">邱</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">邱昊天<span class="tr-ap-workno"> zt23222</span></span><span class="tr-ap-user-end">2026/03/05 10:05</span></div></div></div></div><div class="tr-ap-action-box gray"><span class="tr-ap-box-ok">同意。</span>后加签：韩莹莹 zt666666</div></div></div></div><div class="tr-ap-tl-item"><div><div class="tr-ap-dot cc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg></div><div class="tr-ap-tl-line done"></div></div><div class="tr-ap-node done cc"><div class="tr-ap-node-hd"><div class="tr-ap-node-title"><div class="tr-ap-node-name">抄送对象</div></div><div class="tr-ap-node-meta"><div class="tr-ap-meta-stack"><div class="tr-ap-time-row"><span>2026/03/05 10:05</span></div></div></div></div><div class="tr-ap-node-detail"><div class="tr-ap-users multi"><div class="tr-ap-user"><div class="tr-ap-avatar avc1">伊</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">伊夏青<span class="tr-ap-workno"> zt24701</span></span></div></div></div><div class="tr-ap-user"><div class="tr-ap-avatar avc1">朱</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">朱雨儿<span class="tr-ap-workno"> zt23432</span></span></div></div></div><div class="tr-ap-user"><div class="tr-ap-avatar avc6">谭</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">谭小小<span class="tr-ap-workno"> zt23445</span></span></div></div></div><div class="tr-ap-user"><div class="tr-ap-avatar avc3">袁</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">袁亚兴<span class="tr-ap-workno"> zt23432</span></span></div></div></div></div></div></div></div><div class="tr-ap-tl-item"><div><div class="tr-ap-dot pending"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 6v6l4 2"></path><circle cx="12" cy="12" r="8"></circle></svg></div></div><div class="tr-ap-node pending-tail pending"><div class="tr-ap-node-hd"><div class="tr-ap-node-title"><div class="tr-ap-node-name">HRBP</div></div><div class="tr-ap-node-meta"><div class="tr-ap-meta-stack"><div class="tr-ap-time-row"><span>2026/05/13 17:33</span></div></div></div></div><div class="tr-ap-node-detail"><div class="tr-ap-users"><div class="tr-ap-user"><div class="tr-ap-avatar avc4">黄</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">黄东升</span></div><span class="tr-ap-user-desc">111(WX21197)</span></div></div></div></div></div></div></div>
+    </div></div>
+  </section>
+
+  <section class="ref-section" id="status-ok">
+    <div class="ref-head">
+      <div class="ref-head-main">
+        <div class="ref-kicker">流程状态</div>
+        <h2>同意</h2>
+        <p>包含完整通过链路、或签、会签、抄送成功、最终同意节点和结束节点。</p>
+      </div>
+      <span class="ref-status ok">同意</span>
+    </div>
+    <div class="ref-body">
+    <div class="tr-ap-record-panel">
+      <div class="tr-ap-rec-title">
+        <div class="tr-ap-rec-main">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 7h10"></path><path d="M7 12h6"></path><path d="M5 4h14a2 2 0 012 2v9a2 2 0 01-2 2h-5l-4 3v-3H5a2 2 0 01-2-2V6a2 2 0 012-2z"></path></svg>
+          <span>审批记录</span>
+        </div>
+      </div>
+      <div class="tr-ap-origin"><div class="tr-ap-origin-person"><div class="tr-ap-origin-av">伊</div><div class="tr-ap-origin-copy"><div class="tr-ap-origin-name">伊夏青</div><div class="tr-ap-origin-sub">zt24701</div></div></div><div class="tr-ap-origin-time">2026/03/05 09:00</div></div>
+      <div class="tr-ap-timeline"><div class="tr-ap-tl-item"><div><div class="tr-ap-dot start"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="4"></circle></svg></div><div class="tr-ap-tl-line done"></div></div><div class="tr-ap-node start start"><div class="tr-ap-node-hd"><div class="tr-ap-node-title"><div class="tr-ap-node-name">发起人</div></div><div class="tr-ap-node-meta"></div></div><div class="tr-ap-node-detail"><div class="tr-ap-users"><div class="tr-ap-user"><div class="tr-ap-avatar avc1">伊</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">伊夏青<span class="tr-ap-workno"> zt24701</span></span><span class="tr-ap-user-end">2026/03/05 09:00</span></div></div></div></div><div class="tr-ap-action-box gray"><div class="tr-ap-note-text">提交</div></div></div></div></div><div class="tr-ap-tl-item"><div><div class="tr-ap-dot done"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 13l4 4L19 7"></path></svg></div><div class="tr-ap-tl-line done"></div></div><div class="tr-ap-node done done"><div class="tr-ap-node-hd"><div class="tr-ap-node-title"><div class="tr-ap-node-name">直接上级</div></div><div class="tr-ap-node-meta"><span class="tr-ap-duration-tag">1小时</span></div></div><div class="tr-ap-node-detail"><div class="tr-ap-users"><div class="tr-ap-user"><div class="tr-ap-avatar avc1">朱</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">朱雨儿<span class="tr-ap-workno"> zt23432</span></span><span class="tr-ap-user-end">2026/03/05 10:05</span></div></div></div></div><div class="tr-ap-action-box gray"><span class="tr-ap-box-ok">同意</span></div></div></div></div><div class="tr-ap-tl-item"><div><div class="tr-ap-dot done"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 13l4 4L19 7"></path></svg></div><div class="tr-ap-tl-line done"></div></div><div class="tr-ap-node sign-node done done"><div class="tr-ap-node-hd"><div class="tr-ap-node-title"><div class="tr-ap-node-name">行政对接人</div></div><div class="tr-ap-node-meta"><span class="tr-ap-duration-tag">1小时</span></div></div><div class="tr-ap-node-detail"><div class="tr-ap-users multi"><div class="tr-ap-user"><div class="tr-ap-avatar avc1">朱</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">朱雨儿<span class="tr-ap-workno">(zt23432)</span></span><span class="tr-ap-user-end">2026/03/05 09:05</span></div><div class="tr-ap-user-note"><span>自动跳过，原因：审批人身份重复</span></div></div></div><div class="tr-ap-user"><div class="tr-ap-avatar avc0">朱</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">朱雨雨<span class="tr-ap-workno">(zt24432)</span></span><span class="tr-ap-user-end">2026/03/05 10:05</span></div><span class="tr-ap-user-desc tr-ap-user-result-inline">同意</span><div class="tr-ap-user-note"><span>批准出差</span></div></div></div><div class="tr-ap-user"><div class="tr-ap-avatar avc4">谢</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">谢蓉蓉<span class="tr-ap-workno">(zt24432)</span></span><span class="tr-ap-user-end">2026/03/05 10:05</span></div><div class="tr-ap-user-note"><span>自动完成，原因：他人已处理</span></div></div></div></div></div></div></div><div class="tr-ap-tl-item"><div><div class="tr-ap-dot done"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 13l4 4L19 7"></path></svg></div><div class="tr-ap-tl-line done"></div></div><div class="tr-ap-node sign-node done done"><div class="tr-ap-node-hd"><div class="tr-ap-node-title"><div class="tr-ap-node-name">HR对接人</div></div><div class="tr-ap-node-meta"><span class="tr-ap-duration-tag">1小时</span></div></div><div class="tr-ap-node-detail"><div class="tr-ap-users multi"><div class="tr-ap-user"><div class="tr-ap-avatar avc1">朱</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">朱雨儿<span class="tr-ap-workno">(zt23432)</span></span><span class="tr-ap-user-end">2026/03/05 09:05</span></div><div class="tr-ap-user-note"><span>自动跳过，原因：审批人身份重复</span></div></div></div><div class="tr-ap-user"><div class="tr-ap-avatar avc0">朱</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">朱雨雨<span class="tr-ap-workno">(zt24432)</span></span><span class="tr-ap-user-end">2026/03/05 09:05</span></div><div class="tr-ap-user-note"><span>自动跳过，原因：审批人身份重复</span></div></div></div><div class="tr-ap-user"><div class="tr-ap-avatar avc4">谢</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">谢蓉蓉<span class="tr-ap-workno">(zt24432)</span></span><span class="tr-ap-user-end">2026/03/05 09:05</span></div><div class="tr-ap-user-note"><span>自动跳过，原因：审批人身份重复</span></div></div></div></div></div></div></div><div class="tr-ap-tl-item"><div><div class="tr-ap-dot done"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 13l4 4L19 7"></path></svg></div><div class="tr-ap-tl-line done"></div></div><div class="tr-ap-node sign-node done done"><div class="tr-ap-node-hd"><div class="tr-ap-node-title"><div class="tr-ap-node-name">财务对接人</div></div><div class="tr-ap-node-meta"><span class="tr-ap-duration-tag">1小时</span></div></div><div class="tr-ap-node-detail"><div class="tr-ap-users multi"><div class="tr-ap-user"><div class="tr-ap-avatar avc1">朱</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">朱雨儿<span class="tr-ap-workno">(zt23432)</span></span><span class="tr-ap-user-end">2026/03/05 10:05</span></div><span class="tr-ap-user-desc tr-ap-user-result-inline">同意</span></div></div><div class="tr-ap-user"><div class="tr-ap-avatar avc0">朱</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">朱雨雨<span class="tr-ap-workno">(zt24432)</span></span><span class="tr-ap-user-end">2026/03/05 10:05</span></div><span class="tr-ap-user-desc tr-ap-user-result-inline">同意</span></div></div><div class="tr-ap-user"><div class="tr-ap-avatar avc4">谢</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">谢蓉蓉<span class="tr-ap-workno">(zt24432)</span></span><span class="tr-ap-user-end">2026/03/05 10:05</span></div><span class="tr-ap-user-desc tr-ap-user-result-inline">同意</span></div></div></div></div></div></div><div class="tr-ap-tl-item"><div><div class="tr-ap-dot cc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg></div><div class="tr-ap-tl-line done"></div></div><div class="tr-ap-node done cc"><div class="tr-ap-node-hd"><div class="tr-ap-node-title"><div class="tr-ap-node-name">抄送对象</div></div><div class="tr-ap-node-meta"><div class="tr-ap-meta-stack"><div class="tr-ap-time-row"><span>2026/03/05 10:05</span></div></div></div></div><div class="tr-ap-node-detail"><div class="tr-ap-users multi"><div class="tr-ap-user"><div class="tr-ap-avatar avc1">伊</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">伊夏青<span class="tr-ap-workno"> zt24701</span></span></div></div></div><div class="tr-ap-user"><div class="tr-ap-avatar avc1">朱</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">朱雨儿<span class="tr-ap-workno"> zt23432</span></span></div></div></div><div class="tr-ap-user"><div class="tr-ap-avatar avc6">谭</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">谭小小<span class="tr-ap-workno"> zt23445</span></span></div></div></div><div class="tr-ap-user"><div class="tr-ap-avatar avc3">袁</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">袁亚兴<span class="tr-ap-workno"> zt23432</span></span></div></div></div></div></div></div></div><div class="tr-ap-tl-item"><div><div class="tr-ap-dot done"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 13l4 4L19 7"></path></svg></div><div class="tr-ap-tl-line done"></div></div><div class="tr-ap-node done done"><div class="tr-ap-node-hd"><div class="tr-ap-node-title"><div class="tr-ap-node-name">HRBP</div></div><div class="tr-ap-node-meta"><span class="tr-ap-duration-tag">1小时</span></div></div><div class="tr-ap-node-detail"><div class="tr-ap-users"><div class="tr-ap-user"><div class="tr-ap-avatar avc4">黄</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">黄东升<span class="tr-ap-workno"> 111(WX21197)</span></span><span class="tr-ap-user-end">2026/05/13 17:33</span></div></div></div></div><div class="tr-ap-action-box gray"><span class="tr-ap-box-ok">同意</span></div></div></div></div><div class="tr-ap-tl-item"><div><div class="tr-ap-dot end"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12h14"></path></svg></div></div><div class="tr-ap-node end"><div class="tr-ap-node-hd"><div class="tr-ap-node-title"><div class="tr-ap-node-name">结束</div></div><div class="tr-ap-node-meta"><div class="tr-ap-time-row"><span>2026/05/13 17:33</span></div></div></div></div></div></div>
+    </div></div>
+  </section>
+
+  <section class="ref-section" id="status-bh">
+    <div class="ref-head">
+      <div class="ref-head-main">
+        <div class="ref-kicker">流程状态</div>
+        <h2>已驳回</h2>
+        <p>展示驳回节点与驳回意见。</p>
+      </div>
+      <span class="ref-status bh">已驳回</span>
+    </div>
+    <div class="ref-body">
+    <div class="tr-ap-record-panel">
+      <div class="tr-ap-rec-title">
+        <div class="tr-ap-rec-main">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 7h10"></path><path d="M7 12h6"></path><path d="M5 4h14a2 2 0 012 2v9a2 2 0 01-2 2h-5l-4 3v-3H5a2 2 0 01-2-2V6a2 2 0 012-2z"></path></svg>
+          <span>审批记录</span>
+        </div>
+      </div>
+      <div class="tr-ap-origin"><div class="tr-ap-origin-person"><div class="tr-ap-origin-av">伊</div><div class="tr-ap-origin-copy"><div class="tr-ap-origin-name">伊夏青</div><div class="tr-ap-origin-sub">zt24701</div></div></div><div class="tr-ap-origin-time">2026/03/05 09:00</div></div>
+      <div class="tr-ap-timeline"><div class="tr-ap-tl-item"><div><div class="tr-ap-dot start"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="4"></circle></svg></div><div class="tr-ap-tl-line done"></div></div><div class="tr-ap-node start start"><div class="tr-ap-node-hd"><div class="tr-ap-node-title"><div class="tr-ap-node-name">发起人</div></div><div class="tr-ap-node-meta"></div></div><div class="tr-ap-node-detail"><div class="tr-ap-users"><div class="tr-ap-user"><div class="tr-ap-avatar avc1">伊</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">伊夏青<span class="tr-ap-workno"> zt24701</span></span><span class="tr-ap-user-end">2026/03/05 09:00</span></div></div></div></div><div class="tr-ap-action-box gray"><div class="tr-ap-note-text">提交</div></div></div></div></div><div class="tr-ap-tl-item"><div><div class="tr-ap-dot done"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 13l4 4L19 7"></path></svg></div><div class="tr-ap-tl-line done"></div></div><div class="tr-ap-node done done"><div class="tr-ap-node-hd"><div class="tr-ap-node-title"><div class="tr-ap-node-name">直接上级</div></div><div class="tr-ap-node-meta"><span class="tr-ap-duration-tag">1小时</span></div></div><div class="tr-ap-node-detail"><div class="tr-ap-users"><div class="tr-ap-user"><div class="tr-ap-avatar avc1">朱</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">朱雨儿<span class="tr-ap-workno"> zt23432</span></span><span class="tr-ap-user-end">2026/03/05 10:05</span></div></div></div></div><div class="tr-ap-action-box gray"><span class="tr-ap-box-ok">同意</span></div></div></div></div><div class="tr-ap-tl-item"><div><div class="tr-ap-dot reject"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 6L6 18M6 6l12 12"></path></svg></div></div><div class="tr-ap-node reject reject reject"><div class="tr-ap-node-hd"><div class="tr-ap-node-title"><div class="tr-ap-node-name">间接上级</div></div><div class="tr-ap-node-meta"><span class="tr-ap-duration-tag">1小时</span></div></div><div class="tr-ap-node-detail"><div class="tr-ap-users"><div class="tr-ap-user"><div class="tr-ap-avatar avc6">谭</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">谭小小<span class="tr-ap-workno">(zt23445)</span></span><span class="tr-ap-user-end">2026/03/05 10:05</span></div><span class="tr-ap-user-desc">驳回到直接上级：谭小小 zt23454</span></div></div></div><div class="tr-ap-action-box reject"><div class="tr-ap-note-text">请直接上级朱雨儿先审批。</div></div></div></div></div></div>
+    </div></div>
+  </section>
+
+  <section class="ref-section" id="status-rj">
+    <div class="ref-head">
+      <div class="ref-head-main">
+        <div class="ref-kicker">流程状态</div>
+        <h2>已撤回</h2>
+        <p>展示发起人撤回节点。</p>
+      </div>
+      <span class="ref-status rj">已撤回</span>
+    </div>
+    <div class="ref-body">
+    <div class="tr-ap-record-panel">
+      <div class="tr-ap-rec-title">
+        <div class="tr-ap-rec-main">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 7h10"></path><path d="M7 12h6"></path><path d="M5 4h14a2 2 0 012 2v9a2 2 0 01-2 2h-5l-4 3v-3H5a2 2 0 01-2-2V6a2 2 0 012-2z"></path></svg>
+          <span>审批记录</span>
+        </div>
+      </div>
+      <div class="tr-ap-origin"><div class="tr-ap-origin-person"><div class="tr-ap-origin-av">伊</div><div class="tr-ap-origin-copy"><div class="tr-ap-origin-name">伊夏青</div><div class="tr-ap-origin-sub">zt24701</div></div></div><div class="tr-ap-origin-time">2026/03/05 09:00</div></div>
+      <div class="tr-ap-timeline"><div class="tr-ap-tl-item"><div><div class="tr-ap-dot start"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="4"></circle></svg></div><div class="tr-ap-tl-line done"></div></div><div class="tr-ap-node start start"><div class="tr-ap-node-hd"><div class="tr-ap-node-title"><div class="tr-ap-node-name">发起人</div></div><div class="tr-ap-node-meta"></div></div><div class="tr-ap-node-detail"><div class="tr-ap-users"><div class="tr-ap-user"><div class="tr-ap-avatar avc1">伊</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">伊夏青<span class="tr-ap-workno"> zt24701</span></span><span class="tr-ap-user-end">2026/03/05 09:00</span></div></div></div></div><div class="tr-ap-action-box gray"><div class="tr-ap-note-text">提交</div></div></div></div></div><div class="tr-ap-tl-item"><div><div class="tr-ap-dot done"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 13l4 4L19 7"></path></svg></div><div class="tr-ap-tl-line done"></div></div><div class="tr-ap-node done done"><div class="tr-ap-node-hd"><div class="tr-ap-node-title"><div class="tr-ap-node-name">直接上级</div></div><div class="tr-ap-node-meta"><span class="tr-ap-duration-tag">1小时</span></div></div><div class="tr-ap-node-detail"><div class="tr-ap-users"><div class="tr-ap-user"><div class="tr-ap-avatar avc1">朱</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">朱雨儿<span class="tr-ap-workno"> zt23432</span></span><span class="tr-ap-user-end">2026/03/05 10:05</span></div></div></div></div><div class="tr-ap-action-box gray"><span class="tr-ap-box-ok">同意</span></div></div></div></div><div class="tr-ap-tl-item"><div><div class="tr-ap-dot withdraw"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 14l-4-4 4-4"></path><path d="M5 10h11a4 4 0 010 8h-1"></path></svg></div></div><div class="tr-ap-node withdraw withdraw"><div class="tr-ap-node-hd"><div class="tr-ap-node-title"><div class="tr-ap-node-name">发起人</div></div><div class="tr-ap-node-meta"></div></div><div class="tr-ap-node-detail"><div class="tr-ap-users"><div class="tr-ap-user"><div class="tr-ap-avatar avc1">伊</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">伊夏青<span class="tr-ap-workno"> zt24701</span></span><span class="tr-ap-user-end">2026/03/05 09:00</span></div></div></div></div><div class="tr-ap-action-box gray"><div class="tr-ap-note-text">撤回</div></div></div></div></div></div>
+    </div></div>
+  </section>
+
+  <section class="ref-section" id="status-btg">
+    <div class="ref-head">
+      <div class="ref-head-main">
+        <div class="ref-kicker">流程状态</div>
+        <h2>不同意</h2>
+        <p>展示不同意节点、审批意见和结束节点。</p>
+      </div>
+      <span class="ref-status btg">不同意</span>
+    </div>
+    <div class="ref-body">
+    <div class="tr-ap-record-panel">
+      <div class="tr-ap-rec-title">
+        <div class="tr-ap-rec-main">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 7h10"></path><path d="M7 12h6"></path><path d="M5 4h14a2 2 0 012 2v9a2 2 0 01-2 2h-5l-4 3v-3H5a2 2 0 01-2-2V6a2 2 0 012-2z"></path></svg>
+          <span>审批记录</span>
+        </div>
+      </div>
+      <div class="tr-ap-origin"><div class="tr-ap-origin-person"><div class="tr-ap-origin-av">伊</div><div class="tr-ap-origin-copy"><div class="tr-ap-origin-name">伊夏青</div><div class="tr-ap-origin-sub">zt24701</div></div></div><div class="tr-ap-origin-time">2026/03/05 09:00</div></div>
+      <div class="tr-ap-timeline"><div class="tr-ap-tl-item"><div><div class="tr-ap-dot start"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="4"></circle></svg></div><div class="tr-ap-tl-line done"></div></div><div class="tr-ap-node start start"><div class="tr-ap-node-hd"><div class="tr-ap-node-title"><div class="tr-ap-node-name">发起人</div></div><div class="tr-ap-node-meta"></div></div><div class="tr-ap-node-detail"><div class="tr-ap-users"><div class="tr-ap-user"><div class="tr-ap-avatar avc1">伊</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">伊夏青<span class="tr-ap-workno"> zt24701</span></span><span class="tr-ap-user-end">2026/03/05 09:00</span></div></div></div></div><div class="tr-ap-action-box gray"><div class="tr-ap-note-text">提交</div></div></div></div></div><div class="tr-ap-tl-item"><div><div class="tr-ap-dot done"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 13l4 4L19 7"></path></svg></div><div class="tr-ap-tl-line done"></div></div><div class="tr-ap-node done done"><div class="tr-ap-node-hd"><div class="tr-ap-node-title"><div class="tr-ap-node-name">直接上级</div></div><div class="tr-ap-node-meta"><span class="tr-ap-duration-tag">1小时</span></div></div><div class="tr-ap-node-detail"><div class="tr-ap-users"><div class="tr-ap-user"><div class="tr-ap-avatar avc1">朱</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">朱雨儿<span class="tr-ap-workno"> zt23432</span></span><span class="tr-ap-user-end">2026/03/05 10:05</span></div></div></div></div><div class="tr-ap-action-box gray"><span class="tr-ap-box-ok">同意</span></div></div></div></div><div class="tr-ap-tl-item"><div><div class="tr-ap-dot disagree"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 18L18 6M6 6l12 12"></path></svg></div><div class="tr-ap-tl-line disagree"></div></div><div class="tr-ap-node reject disagree disagree"><div class="tr-ap-node-hd"><div class="tr-ap-node-title"><div class="tr-ap-node-name">海外行政（加签）</div></div><div class="tr-ap-node-meta"><span class="tr-ap-duration-tag">1小时</span></div></div><div class="tr-ap-node-detail"><div class="tr-ap-users"><div class="tr-ap-user"><div class="tr-ap-avatar avc0">韩</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">韩雪莹<span class="tr-ap-workno">(zt666666)</span></span><span class="tr-ap-user-end">2026/03/05 10:05</span></div><span class="tr-ap-user-desc">不同意</span></div></div></div><div class="tr-ap-action-box disagree"><div class="tr-ap-note-text">经审核，您提交的出差申请因存在以下情况暂不予批准：申请中出差事由描述较为笼统，未能清晰说明本次出差的具体工作目标、预期成果及与当前部门重点业务的关联性，相关有效评估本次出差的必要性与预算合理性。</div></div></div></div></div><div class="tr-ap-tl-item"><div><div class="tr-ap-dot end"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12h14"></path></svg></div></div><div class="tr-ap-node end"><div class="tr-ap-node-hd"><div class="tr-ap-node-title"><div class="tr-ap-node-name">结束</div></div><div class="tr-ap-node-meta"><div class="tr-ap-time-row"><span>2026/05/13 17:33</span></div></div></div></div></div></div>
+    </div></div>
+  </section>
+
+  <section class="ref-section" id="status-zz">
+    <div class="ref-head">
+      <div class="ref-head-main">
+        <div class="ref-kicker">流程状态</div>
+        <h2>已作废</h2>
+        <p>展示管理员作废节点和结束节点。</p>
+      </div>
+      <span class="ref-status zz">已作废</span>
+    </div>
+    <div class="ref-body">
+    <div class="tr-ap-record-panel">
+      <div class="tr-ap-rec-title">
+        <div class="tr-ap-rec-main">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 7h10"></path><path d="M7 12h6"></path><path d="M5 4h14a2 2 0 012 2v9a2 2 0 01-2 2h-5l-4 3v-3H5a2 2 0 01-2-2V6a2 2 0 012-2z"></path></svg>
+          <span>审批记录</span>
+        </div>
+      </div>
+      <div class="tr-ap-origin"><div class="tr-ap-origin-person"><div class="tr-ap-origin-av">伊</div><div class="tr-ap-origin-copy"><div class="tr-ap-origin-name">伊夏青</div><div class="tr-ap-origin-sub">zt24701</div></div></div><div class="tr-ap-origin-time">2026/03/05 09:00</div></div>
+      <div class="tr-ap-timeline"><div class="tr-ap-tl-item"><div><div class="tr-ap-dot start"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="4"></circle></svg></div><div class="tr-ap-tl-line done"></div></div><div class="tr-ap-node start start"><div class="tr-ap-node-hd"><div class="tr-ap-node-title"><div class="tr-ap-node-name">发起人</div></div><div class="tr-ap-node-meta"></div></div><div class="tr-ap-node-detail"><div class="tr-ap-users"><div class="tr-ap-user"><div class="tr-ap-avatar avc1">伊</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">伊夏青<span class="tr-ap-workno"> zt24701</span></span><span class="tr-ap-user-end">2026/03/05 09:00</span></div></div></div></div><div class="tr-ap-action-box gray"><div class="tr-ap-note-text">提交</div></div></div></div></div><div class="tr-ap-tl-item"><div><div class="tr-ap-dot done"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 13l4 4L19 7"></path></svg></div><div class="tr-ap-tl-line done"></div></div><div class="tr-ap-node done done"><div class="tr-ap-node-hd"><div class="tr-ap-node-title"><div class="tr-ap-node-name">直接上级</div></div><div class="tr-ap-node-meta"><span class="tr-ap-duration-tag">1小时</span></div></div><div class="tr-ap-node-detail"><div class="tr-ap-users"><div class="tr-ap-user"><div class="tr-ap-avatar avc1">朱</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">朱雨儿<span class="tr-ap-workno"> zt23432</span></span><span class="tr-ap-user-end">2026/03/05 10:05</span></div></div></div></div><div class="tr-ap-action-box gray"><span class="tr-ap-box-ok">同意</span></div></div></div></div><div class="tr-ap-tl-item"><div><div class="tr-ap-dot void"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 7h16"></path><path d="M10 11v6M14 11v6"></path><path d="M6 7l1 14h10l1-14"></path></svg></div><div class="tr-ap-tl-line void"></div></div><div class="tr-ap-node void void"><div class="tr-ap-node-hd"><div class="tr-ap-node-title"><div class="tr-ap-node-name">流程管理员</div></div><div class="tr-ap-node-meta"><span class="tr-ap-duration-tag">1小时</span></div></div><div class="tr-ap-node-detail"><div class="tr-ap-users"><div class="tr-ap-user"><div class="tr-ap-avatar avc1 system">系</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">系统管理员<span class="tr-ap-workno">(admin)</span></span><span class="tr-ap-user-end">2026/03/05 10:05</span></div><span class="tr-ap-user-desc">作废</span></div></div></div><div class="tr-ap-action-box void"><div class="tr-ap-note-text">当前单据因组织或审批配置变化被管理员作废，请发起人确认后重新提交。</div></div></div></div></div><div class="tr-ap-tl-item"><div><div class="tr-ap-dot end"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12h14"></path></svg></div></div><div class="tr-ap-node end"><div class="tr-ap-node-hd"><div class="tr-ap-node-title"><div class="tr-ap-node-name">结束</div></div><div class="tr-ap-node-meta"><div class="tr-ap-time-row"><span>2026/05/13 17:33</span></div></div></div></div></div></div>
+    </div></div>
+  </section>
+<section class="ref-section full" id="scene-intervene">
+      <div class="ref-head">
+        <div class="ref-head-main">
+          <div class="ref-kicker">补充场景</div>
+          <h2>节点干预</h2>
+          <p>完全参考截图中的节点干预展示：直接上级节点、15分钟耗时、WX21197 执行信息和干预说明。</p>
+        </div>
+        <span class="ref-status ok">节点干预</span>
+      </div>
+      <div class="ref-body">
+    <div class="tr-ap-record-panel">
+      <div class="tr-ap-rec-title">
+        <div class="tr-ap-rec-main">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 7h10"></path><path d="M7 12h6"></path><path d="M5 4h14a2 2 0 012 2v9a2 2 0 01-2 2h-5l-4 3v-3H5a2 2 0 01-2-2V6a2 2 0 012-2z"></path></svg>
+          <span>审批记录</span>
+        </div>
+      </div>
+      <div class="tr-ap-origin"><div class="tr-ap-origin-person"><div class="tr-ap-origin-av">伊</div><div class="tr-ap-origin-copy"><div class="tr-ap-origin-name">伊夏青</div><div class="tr-ap-origin-sub">zt24701</div></div></div><div class="tr-ap-origin-time">2026/05/12 18:43</div></div>
+      <div class="tr-ap-timeline"><div class="tr-ap-tl-item"><div><div class="tr-ap-dot start"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="4"></circle></svg></div><div class="tr-ap-tl-line done"></div></div><div class="tr-ap-node start start"><div class="tr-ap-node-hd"><div class="tr-ap-node-title"><div class="tr-ap-node-name">发起人</div></div><div class="tr-ap-node-meta"></div></div><div class="tr-ap-node-detail"><div class="tr-ap-users"><div class="tr-ap-user"><div class="tr-ap-avatar avc1">伊</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">伊夏青<span class="tr-ap-workno"> zt24701</span></span><span class="tr-ap-user-end">2026/05/12 18:43</span></div></div></div></div><div class="tr-ap-action-box gray"><div class="tr-ap-note-text">提交</div></div></div></div></div><div class="tr-ap-tl-item"><div><div class="tr-ap-dot done"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 13l4 4L19 7"></path></svg></div><div class="tr-ap-tl-line done"></div></div><div class="tr-ap-node intervene done"><div class="tr-ap-node-hd"><div class="tr-ap-node-title"><div class="tr-ap-node-name">直接上级</div></div><div class="tr-ap-node-meta"><span class="tr-ap-duration-tag">15分钟</span></div></div><div class="tr-ap-node-detail"><div class="tr-ap-users"><div class="tr-ap-user"><div class="tr-ap-avatar avc2">W</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">WX21197</span><span class="tr-ap-user-end">2026/05/12 18:58</span></div></div></div></div><div class="tr-ap-action-box intervene"><span class="tr-ap-intervene-title">节点干预</span><div class="tr-ap-note-text">admin执行节点干预，跳转至[HSCC_基础人事专员]，执行人：[黄东升(WX21197)]</div></div></div></div></div><div class="tr-ap-tl-item"><div><div class="tr-ap-dot pending"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 6v6l4 2"></path><circle cx="12" cy="12" r="8"></circle></svg></div></div><div class="tr-ap-node pending-tail pending"><div class="tr-ap-node-hd"><div class="tr-ap-node-title"><div class="tr-ap-node-name">HSCC_基础人事专员</div></div><div class="tr-ap-node-meta"><div class="tr-ap-meta-stack"><div class="tr-ap-time-row"><span>2026/05/12 18:58</span></div></div></div></div><div class="tr-ap-node-detail"><div class="tr-ap-users"><div class="tr-ap-user"><div class="tr-ap-avatar avc4">黄</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">黄东升</span></div><span class="tr-ap-user-desc">WX21197</span></div></div></div></div></div></div></div>
+    </div></div>
+    </section>
+      <section class="ref-section full" id="node-library">
+      <div class="ref-head">
+        <div class="ref-head-main">
+          <div class="ref-kicker">补充覆盖</div>
+          <h2>节点样式库</h2>
+          <p>把开发需要单独识别的节点形态集中展示，包含常规、异常、多人审批、节点干预、抄送成功/失败、待处理和结束。</p>
+        </div>
+        <span class="ref-status pd">样式库</span>
+      </div>
+      <div class="ref-body">
+    <div class="tr-ap-record-panel">
+      <div class="tr-ap-rec-title">
+        <div class="tr-ap-rec-main">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 7h10"></path><path d="M7 12h6"></path><path d="M5 4h14a2 2 0 012 2v9a2 2 0 01-2 2h-5l-4 3v-3H5a2 2 0 01-2-2V6a2 2 0 012-2z"></path></svg>
+          <span>审批记录</span>
+        </div>
+      </div>
+      <div class="tr-ap-origin"><div class="tr-ap-origin-person"><div class="tr-ap-origin-av">样</div><div class="tr-ap-origin-copy"><div class="tr-ap-origin-name">节点样式库</div><div class="tr-ap-origin-sub">覆盖常规、异常、多人审批、抄送、结束</div></div></div><div class="tr-ap-origin-time">2026/03/05 09:00</div></div>
+      <div class="tr-ap-timeline"><div class="tr-ap-tl-item"><div><div class="tr-ap-dot start"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="4"></circle></svg></div><div class="tr-ap-tl-line done"></div></div><div class="tr-ap-node start start"><div class="tr-ap-node-hd"><div class="tr-ap-node-title"><div class="tr-ap-node-name">发起人</div></div><div class="tr-ap-node-meta"></div></div><div class="tr-ap-node-detail"><div class="tr-ap-users"><div class="tr-ap-user"><div class="tr-ap-avatar avc1">伊</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">伊夏青<span class="tr-ap-workno"> zt24701</span></span><span class="tr-ap-user-end">2026/03/05 09:00</span></div></div></div></div><div class="tr-ap-action-box gray"><div class="tr-ap-note-text">提交</div></div></div></div></div><div class="tr-ap-tl-item"><div><div class="tr-ap-dot done"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 13l4 4L19 7"></path></svg></div><div class="tr-ap-tl-line done"></div></div><div class="tr-ap-node done done"><div class="tr-ap-node-hd"><div class="tr-ap-node-title"><div class="tr-ap-node-name">普通审批-同意</div></div><div class="tr-ap-node-meta"><span class="tr-ap-duration-tag">1小时</span></div></div><div class="tr-ap-node-detail"><div class="tr-ap-users"><div class="tr-ap-user"><div class="tr-ap-avatar avc1">朱</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">朱雨儿<span class="tr-ap-workno"> zt23432</span></span><span class="tr-ap-user-end">2026/03/05 10:05</span></div></div></div></div><div class="tr-ap-action-box gray"><span class="tr-ap-box-ok">同意</span></div></div></div></div><div class="tr-ap-tl-item"><div><div class="tr-ap-dot done"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 13l4 4L19 7"></path></svg></div><div class="tr-ap-tl-line done"></div></div><div class="tr-ap-node transfer done"><div class="tr-ap-node-hd"><div class="tr-ap-node-title"><div class="tr-ap-node-name">转交节点</div></div><div class="tr-ap-node-meta"><span class="tr-ap-duration-tag">1小时</span></div></div><div class="tr-ap-node-detail"><div class="tr-ap-users"><div class="tr-ap-user"><div class="tr-ap-avatar avc1">朱</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">朱雨儿<span class="tr-ap-workno"> zt23432</span></span><span class="tr-ap-user-end">2026/03/05 10:05</span></div></div></div></div><div class="tr-ap-action-box gray"><div class="tr-ap-box-strong">转交：谭小小 zt23454</div><div class="tr-ap-opinion">员工的出差期间是否有工作冲突？请帮忙审核转交</div></div></div></div></div><div class="tr-ap-tl-item"><div><div class="tr-ap-dot reject"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 6L6 18M6 6l12 12"></path></svg></div><div class="tr-ap-tl-line done"></div></div><div class="tr-ap-node reject reject reject"><div class="tr-ap-node-hd"><div class="tr-ap-node-title"><div class="tr-ap-node-name">驳回节点</div></div><div class="tr-ap-node-meta"><span class="tr-ap-duration-tag">1小时</span></div></div><div class="tr-ap-node-detail"><div class="tr-ap-users"><div class="tr-ap-user"><div class="tr-ap-avatar avc6">谭</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">谭小小<span class="tr-ap-workno"> zt23445</span></span><span class="tr-ap-user-end">2026/03/05 10:05</span></div></div></div></div><div class="tr-ap-action-box gray"><div class="tr-ap-box-strong">驳回到直接上级：谭小小 zt23454</div><div class="tr-ap-opinion">请直接上级朱雨儿先审批。</div></div></div></div></div><div class="tr-ap-tl-item"><div><div class="tr-ap-dot disagree"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 18L18 6M6 6l12 12"></path></svg></div><div class="tr-ap-tl-line disagree"></div></div><div class="tr-ap-node reject disagree disagree"><div class="tr-ap-node-hd"><div class="tr-ap-node-title"><div class="tr-ap-node-name">不同意节点</div></div><div class="tr-ap-node-meta"><span class="tr-ap-duration-tag">1小时</span></div></div><div class="tr-ap-node-detail"><div class="tr-ap-users"><div class="tr-ap-user"><div class="tr-ap-avatar avc0">韩</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">韩雪莹<span class="tr-ap-workno">(zt666666)</span></span><span class="tr-ap-user-end">2026/03/05 10:05</span></div><span class="tr-ap-user-desc">不同意</span></div></div></div><div class="tr-ap-action-box disagree"><div class="tr-ap-note-text">经审核，您提交的出差申请因出差事由描述较为笼统，暂不予批准。</div></div></div></div></div><div class="tr-ap-tl-item"><div><div class="tr-ap-dot withdraw"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 14l-4-4 4-4"></path><path d="M5 10h11a4 4 0 010 8h-1"></path></svg></div><div class="tr-ap-tl-line withdraw"></div></div><div class="tr-ap-node withdraw withdraw"><div class="tr-ap-node-hd"><div class="tr-ap-node-title"><div class="tr-ap-node-name">发起人撤回节点</div></div><div class="tr-ap-node-meta"></div></div><div class="tr-ap-node-detail"><div class="tr-ap-users"><div class="tr-ap-user"><div class="tr-ap-avatar avc1">伊</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">伊夏青<span class="tr-ap-workno"> zt24701</span></span><span class="tr-ap-user-end">2026/03/05 09:00</span></div></div></div></div><div class="tr-ap-action-box gray"><div class="tr-ap-note-text">撤回</div></div></div></div></div><div class="tr-ap-tl-item"><div><div class="tr-ap-dot void"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 7h16"></path><path d="M10 11v6M14 11v6"></path><path d="M6 7l1 14h10l1-14"></path></svg></div><div class="tr-ap-tl-line void"></div></div><div class="tr-ap-node void void"><div class="tr-ap-node-hd"><div class="tr-ap-node-title"><div class="tr-ap-node-name">作废节点</div></div><div class="tr-ap-node-meta"><span class="tr-ap-duration-tag">1小时</span></div></div><div class="tr-ap-node-detail"><div class="tr-ap-users"><div class="tr-ap-user"><div class="tr-ap-avatar avc1 system">系</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">系统管理员<span class="tr-ap-workno">(admin)</span></span><span class="tr-ap-user-end">2026/03/05 10:05</span></div><span class="tr-ap-user-desc">作废</span></div></div></div><div class="tr-ap-action-box void"><div class="tr-ap-note-text">当前单据因组织或审批配置变化被管理员作废，请发起人确认后重新提交。</div></div></div></div></div><div class="tr-ap-tl-item"><div><div class="tr-ap-dot done"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 13l4 4L19 7"></path></svg></div><div class="tr-ap-tl-line done"></div></div><div class="tr-ap-node intervene done"><div class="tr-ap-node-hd"><div class="tr-ap-node-title"><div class="tr-ap-node-name">直接上级</div></div><div class="tr-ap-node-meta"><span class="tr-ap-duration-tag">15分钟</span></div></div><div class="tr-ap-node-detail"><div class="tr-ap-users"><div class="tr-ap-user"><div class="tr-ap-avatar avc2">W</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">WX21197</span><span class="tr-ap-user-end">2026/05/12 18:58</span></div></div></div></div><div class="tr-ap-action-box intervene"><span class="tr-ap-intervene-title">节点干预</span><div class="tr-ap-note-text">admin执行节点干预，跳转至[HSCC_基础人事专员]，执行人：[黄东升(WX21197)]</div></div></div></div></div><div class="tr-ap-tl-item"><div><div class="tr-ap-dot done"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 13l4 4L19 7"></path></svg></div><div class="tr-ap-tl-line done"></div></div><div class="tr-ap-node sign-node done done"><div class="tr-ap-node-hd"><div class="tr-ap-node-title"><div class="tr-ap-node-name">或签节点</div></div><div class="tr-ap-node-meta"><span class="tr-ap-duration-tag">1小时</span></div></div><div class="tr-ap-node-detail"><div class="tr-ap-users multi"><div class="tr-ap-user"><div class="tr-ap-avatar avc1">朱</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">朱雨儿<span class="tr-ap-workno">(zt23432)</span></span><span class="tr-ap-user-end">2026/03/05 09:05</span></div><div class="tr-ap-user-note"><span>自动跳过，原因：审批人身份重复</span></div></div></div><div class="tr-ap-user"><div class="tr-ap-avatar avc0">朱</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">朱雨雨<span class="tr-ap-workno">(zt24432)</span></span><span class="tr-ap-user-end">2026/03/05 10:05</span></div><span class="tr-ap-user-desc tr-ap-user-result-inline">同意</span><div class="tr-ap-user-note"><span>批准出差</span></div></div></div><div class="tr-ap-user"><div class="tr-ap-avatar avc4">谢</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">谢蓉蓉<span class="tr-ap-workno">(zt24432)</span></span><span class="tr-ap-user-end">2026/03/05 10:05</span></div><div class="tr-ap-user-note"><span>自动完成，原因：他人已处理</span></div></div></div></div></div></div></div><div class="tr-ap-tl-item"><div><div class="tr-ap-dot done"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 13l4 4L19 7"></path></svg></div><div class="tr-ap-tl-line done"></div></div><div class="tr-ap-node sign-node done done"><div class="tr-ap-node-hd"><div class="tr-ap-node-title"><div class="tr-ap-node-name">会签节点</div></div><div class="tr-ap-node-meta"><span class="tr-ap-duration-tag">1小时</span></div></div><div class="tr-ap-node-detail"><div class="tr-ap-users multi"><div class="tr-ap-user"><div class="tr-ap-avatar avc1">朱</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">朱雨儿<span class="tr-ap-workno">(zt23432)</span></span><span class="tr-ap-user-end">2026/03/05 10:05</span></div><span class="tr-ap-user-desc tr-ap-user-result-inline">同意</span></div></div><div class="tr-ap-user"><div class="tr-ap-avatar avc0">朱</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">朱雨雨<span class="tr-ap-workno">(zt24432)</span></span><span class="tr-ap-user-end">2026/03/05 10:05</span></div><span class="tr-ap-user-desc tr-ap-user-result-inline">同意</span></div></div><div class="tr-ap-user"><div class="tr-ap-avatar avc4">谢</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">谢蓉蓉<span class="tr-ap-workno">(zt24432)</span></span><span class="tr-ap-user-end">2026/03/05 10:05</span></div><span class="tr-ap-user-desc tr-ap-user-result-inline">同意</span></div></div></div></div></div></div><div class="tr-ap-tl-item"><div><div class="tr-ap-dot cc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg></div><div class="tr-ap-tl-line done"></div></div><div class="tr-ap-node done cc"><div class="tr-ap-node-hd"><div class="tr-ap-node-title"><div class="tr-ap-node-name">抄送对象-成功</div></div><div class="tr-ap-node-meta"><div class="tr-ap-meta-stack"><div class="tr-ap-time-row"><span>2026/03/05 10:05</span></div></div></div></div><div class="tr-ap-node-detail"><div class="tr-ap-users multi"><div class="tr-ap-user"><div class="tr-ap-avatar avc1">伊</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">伊夏青<span class="tr-ap-workno"> zt24701</span></span></div></div></div><div class="tr-ap-user"><div class="tr-ap-avatar avc1">朱</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">朱雨儿<span class="tr-ap-workno"> zt23432</span></span></div></div></div><div class="tr-ap-user"><div class="tr-ap-avatar avc6">谭</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">谭小小<span class="tr-ap-workno"> zt23445</span></span></div></div></div></div></div></div></div><div class="tr-ap-tl-item"><div><div class="tr-ap-dot cc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg></div><div class="tr-ap-tl-line done"></div></div><div class="tr-ap-node fail cc"><div class="tr-ap-node-hd"><div class="tr-ap-node-title"><div class="tr-ap-node-name">抄送对象</div></div><div class="tr-ap-node-meta"></div></div><div class="tr-ap-node-detail no-users"><div class="tr-ap-action-box fail all-cc-fail"><span class="tr-ap-result">全部抄送失败</span><div class="tr-ap-note-text">，原因：找不到抄送人</div></div></div></div></div><div class="tr-ap-tl-item"><div><div class="tr-ap-dot pending"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 6v6l4 2"></path><circle cx="12" cy="12" r="8"></circle></svg></div><div class="tr-ap-tl-line pending"></div></div><div class="tr-ap-node pending-tail pending"><div class="tr-ap-node-hd"><div class="tr-ap-node-title"><div class="tr-ap-node-name">待处理节点</div></div><div class="tr-ap-node-meta"><div class="tr-ap-meta-stack"><div class="tr-ap-time-row"><span>2026/05/13 17:33</span></div></div></div></div><div class="tr-ap-node-detail"><div class="tr-ap-users"><div class="tr-ap-user"><div class="tr-ap-avatar avc4">黄</div><div class="tr-ap-user-copy"><div class="tr-ap-user-main"><span class="tr-ap-user-name">黄东升</span></div><span class="tr-ap-user-desc">111(WX21197)</span></div></div></div></div></div></div><div class="tr-ap-tl-item"><div><div class="tr-ap-dot end"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12h14"></path></svg></div></div><div class="tr-ap-node end"><div class="tr-ap-node-hd"><div class="tr-ap-node-title"><div class="tr-ap-node-name">结束</div></div><div class="tr-ap-node-meta"><div class="tr-ap-time-row"><span>2026/05/13 17:33</span></div></div></div></div></div></div>
+    </div></div>
+    </section>
+  </div>
+</main>
+</body>
+</html>
